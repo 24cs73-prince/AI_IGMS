@@ -26,10 +26,10 @@ import { PageLoader } from "../components/ui/Loader";
 import { useToast } from "../context/ToastContext";
 
 /**
- * Student Management page: searchable, filterable, paginated table
- * with a profile drawer and an (UI-only) "Add Student" modal.
+ * Parent Management page: searchable, filterable, paginated table
+ * with a profile drawer and an (UI-only) "Add Parent" modal.
  */
-export default function Students() {
+export default function Parents() {
   const { data: students, loading } = useFetch(() => api.getStudents(), []);
   const toast = useToast();
 
@@ -79,15 +79,25 @@ export default function Students() {
 
   const columns = [
     {
-      key: "name",
-      header: "Student",
+      key: "guardian",
+      header: "Parent/Guardian",
       render: (r) => (
         <div className="flex items-center gap-3">
-          <Avatar name={r.name} size="sm" />
+          <Avatar name={r.guardian} size="sm" />
           <div>
-            <p className="font-medium text-ink">{r.name}</p>
-            <p className="text-xs text-slate-400">{r.id}</p>
+            <p className="font-medium text-ink">{r.guardian}</p>
+            <p className="text-xs text-slate-400">{r.phone}</p>
           </div>
+        </div>
+      ),
+    },
+    {
+      key: "name",
+      header: "Linked Student",
+      render: (r) => (
+        <div>
+          <p className="font-medium text-ink">{r.name}</p>
+          <p className="text-xs text-slate-400">{r.id}</p>
         </div>
       ),
     },
@@ -100,7 +110,6 @@ export default function Students() {
         </span>
       ),
     },
-    { key: "guardian", header: "Guardian" },
     {
       key: "attendance",
       header: "Attendance",
@@ -130,9 +139,9 @@ export default function Students() {
   return (
     <div>
       <PageHeader
-        title="Student Management"
-        description={`${total} students across all classes and sections.`}
-        breadcrumbs={[{ label: "Students" }]}
+        title="Parent Management"
+        description={`${total} parents across all classes and sections.`}
+        breadcrumbs={[{ label: "Parents" }]}
         action={
           <div className="flex gap-2">
             <Button
@@ -143,7 +152,7 @@ export default function Students() {
               Export
             </Button>
             <Button icon={FiPlus} onClick={() => setAddOpen(true)}>
-              Add Student
+              Add Parent
             </Button>
           </div>
         }
@@ -192,20 +201,19 @@ export default function Students() {
         open={Boolean(selected)}
         onClose={() => setSelected(null)}
         size="md"
-        title="Student Profile"
-        subtitle={selected?.id}
+        title="Parent Profile"
+        subtitle={`Parent of ${selected?.name}`}
       >
         {selected && (
           <div>
             <div className="flex items-center gap-4">
-              <Avatar name={selected.name} size="xl" />
+              <Avatar name={selected.guardian} size="xl" />
               <div>
                 <h3 className="text-lg font-semibold text-ink">
-                  {selected.name}
+                  {selected.guardian}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  {selected.className} · Section {selected.section} · Roll{" "}
-                  {selected.roll}
+                  {selected.phone} · {selected.email}
                 </p>
                 <div className="mt-1">
                   <Badge tone={STATUS_TONE[selected.status]}>
@@ -232,8 +240,14 @@ export default function Students() {
 
             <dl className="mt-6 space-y-3 text-sm">
               <div className="flex items-center justify-between">
-                <dt className="text-slate-500">Guardian</dt>
-                <dd className="font-medium text-ink">{selected.guardian}</dd>
+                <dt className="text-slate-500">Student</dt>
+                <dd className="font-medium text-ink">{selected.name}</dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="flex items-center gap-1.5 text-slate-500">
+                  Class Info
+                </dt>
+                <dd className="font-medium text-ink">{selected.className} · Sec {selected.section}</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="flex items-center gap-1.5 text-slate-500">
@@ -247,23 +261,17 @@ export default function Students() {
                 </dt>
                 <dd className="font-medium text-ink">{selected.email}</dd>
               </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-slate-500">Admission Date</dt>
-                <dd className="font-medium text-ink">
-                  {selected.admissionDate}
-                </dd>
-              </div>
             </dl>
           </div>
         )}
       </Modal>
 
-      {/* Add student modal (UI only) */}
+      {/* Add parent modal (UI only) */}
       <Modal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        title="Add New Student"
-        subtitle="Enter the student's details below."
+        title="Add New Parent"
+        subtitle="Enter the parent's details below."
         footer={
           <>
             <Button variant="outline" onClick={() => setAddOpen(false)}>
@@ -272,20 +280,19 @@ export default function Students() {
             <Button
               onClick={() => {
                 setAddOpen(false);
-                toast.success("Student added (demo).");
+                toast.success("Parent added (demo).");
               }}
             >
-              Save Student
+              Save Parent
             </Button>
           </>
         }
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Input label="Full Name" placeholder="e.g. Aarav Sharma" />
-          <Input label="Roll Number" type="number" placeholder="e.g. 26" />
+          <Input label="Guardian Name" placeholder="e.g. Rajesh Sharma" />
+          <Input label="Student Name" placeholder="e.g. Aarav Sharma" />
           <Input label="Class" placeholder="e.g. Class 10" />
           <Input label="Section" placeholder="e.g. A" />
-          <Input label="Guardian Name" placeholder="e.g. Rajesh Sharma" />
           <Input label="Phone" placeholder="+91 …" />
           <Input
             label="Email"
